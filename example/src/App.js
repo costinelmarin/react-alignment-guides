@@ -4,8 +4,8 @@ import AlignmentGuides from 'react-alignment-guides';
 
 // Dummy position data to generate the boxes
 const POS_DATA = [
-	{ x: 0, y: 0, width: 200, height: 100, top: 0, left: 0 },
-	{ x: 350, y: 150, width: 200, height: 75, top: 150, left: 350 },
+	{ x: 0, y: 0, width: 200, height: 100, top: 0, left: 0, aspectRatio: true },
+	{ x: 400, y: 80, width: 200, height: 200, top: 80, left: 400, aspectRatio: 1 },
 	{ x: 150, y: 125, width: 75, height: 175, top: 125, left: 150 },
 	{ x: 300, y: 250, width: 75, height: 175, top: 250, left: 300 },
 	{ x: 450, y: 375, width: 75, height: 175, top: 375, left: 450 },

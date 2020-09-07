@@ -220,7 +220,7 @@ const setHeightAndDeltaH = (height, deltaH, minHeight) => {
 	return { height, deltaH }
 }
 
-export const getNewStyle = (type, rect, deltaW, deltaH, minWidth, minHeight) => {
+export const getNewStyle = (type, rect, deltaW, deltaH, minWidth, minHeight, ratio) => {
 	let { width, height, cx, cy, rotateAngle } = rect;
 	const widthFlag = width < 0 ? -1 : 1;
 	const heightFlag = height < 0 ? -1 : 1;
@@ -235,6 +235,10 @@ export const getNewStyle = (type, rect, deltaW, deltaH, minWidth, minHeight) => 
 			const heightAndDeltaH = setHeightAndDeltaH(height, deltaH, minHeight)
 			height = heightAndDeltaH.height
 			deltaH = heightAndDeltaH.deltaH
+			if (ratio) {
+				deltaW = deltaH * ratio
+				width = height * ratio
+			}
 			cx += deltaW / 2 * cos(rotateAngle) + deltaH / 2 * sin(rotateAngle)
 			cy += deltaW / 2 * sin(rotateAngle) - deltaH / 2 * cos(rotateAngle)
 			break
@@ -246,6 +250,10 @@ export const getNewStyle = (type, rect, deltaW, deltaH, minWidth, minHeight) => 
 			const heightAndDeltaH = setHeightAndDeltaH(height, deltaH, minHeight)
 			height = heightAndDeltaH.height
 			deltaH = heightAndDeltaH.deltaH
+			if (ratio) {
+				deltaW = deltaH * ratio
+				width = height * ratio
+			}
 			cx += deltaW / 2 * cos(rotateAngle) - deltaH / 2 * sin(rotateAngle)
 			cy += deltaW / 2 * sin(rotateAngle) + deltaH / 2 * cos(rotateAngle)
 			break
@@ -258,6 +266,10 @@ export const getNewStyle = (type, rect, deltaW, deltaH, minWidth, minHeight) => 
 			const heightAndDeltaH = setHeightAndDeltaH(height, deltaH, minHeight)
 			height = heightAndDeltaH.height
 			deltaH = heightAndDeltaH.deltaH
+			if (ratio) {
+				height = width / ratio
+				deltaH = deltaW / ratio
+			}
 			cx -= deltaW / 2 * cos(rotateAngle) + deltaH / 2 * sin(rotateAngle)
 			cy -= deltaW / 2 * sin(rotateAngle) - deltaH / 2 * cos(rotateAngle)
 			break
@@ -271,6 +283,10 @@ export const getNewStyle = (type, rect, deltaW, deltaH, minWidth, minHeight) => 
 			const heightAndDeltaH = setHeightAndDeltaH(height, deltaH, minHeight)
 			height = heightAndDeltaH.height
 			deltaH = heightAndDeltaH.deltaH
+			if (ratio) {
+				width = height * ratio
+				deltaW = deltaH * ratio
+			}
 			cx -= deltaW / 2 * cos(rotateAngle) - deltaH / 2 * sin(rotateAngle)
 			cy -= deltaW / 2 * sin(rotateAngle) + deltaH / 2 * cos(rotateAngle)
 			break

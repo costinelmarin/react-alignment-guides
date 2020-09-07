@@ -612,6 +612,7 @@ class AlignmentGuides extends Component {
 		// Create the draggable boxes from the position data
 		const draggableBoxes = Object.keys(boxes).map(box => {
 			const position = boxes[box];
+			const aspectRatio = boxes[box].aspectRatio;
 			const id = boxes[box].id || box;
 			const isSelected = (active === id || activeBoxes.includes(id));
 
@@ -641,6 +642,7 @@ class AlignmentGuides extends Component {
 				rotating={this.state.rotating}
 				selectBox={this.selectBox}
 				setDragOrResizeState={this.setDragOrResizeState}
+				aspectRatio={aspectRatio}
 			/>;
 		});
 

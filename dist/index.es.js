@@ -700,7 +700,7 @@ var setHeightAndDeltaH = function setHeightAndDeltaH(height, deltaH, minHeight) 
   };
 };
 
-var getNewStyle = function getNewStyle(type, rect, deltaW, deltaH, minWidth, minHeight) {
+var getNewStyle = function getNewStyle(type, rect, deltaW, deltaH, minWidth, minHeight, ratio) {
   var width = rect.width,
       height = rect.height,
       cx = rect.cx,
@@ -721,6 +721,12 @@ var getNewStyle = function getNewStyle(type, rect, deltaW, deltaH, minWidth, min
         var heightAndDeltaH = setHeightAndDeltaH(height, deltaH, minHeight);
         height = heightAndDeltaH.height;
         deltaH = heightAndDeltaH.deltaH;
+
+        if (ratio) {
+          deltaW = deltaH * ratio;
+          width = height * ratio;
+        }
+
         cx += deltaW / 2 * cos(rotateAngle) + deltaH / 2 * sin(rotateAngle);
         cy += deltaW / 2 * sin(rotateAngle) - deltaH / 2 * cos(rotateAngle);
         break;
@@ -737,6 +743,12 @@ var getNewStyle = function getNewStyle(type, rect, deltaW, deltaH, minWidth, min
 
         height = _heightAndDeltaH.height;
         deltaH = _heightAndDeltaH.deltaH;
+
+        if (ratio) {
+          deltaW = deltaH * ratio;
+          width = height * ratio;
+        }
+
         cx += deltaW / 2 * cos(rotateAngle) - deltaH / 2 * sin(rotateAngle);
         cy += deltaW / 2 * sin(rotateAngle) + deltaH / 2 * cos(rotateAngle);
         break;
@@ -755,6 +767,12 @@ var getNewStyle = function getNewStyle(type, rect, deltaW, deltaH, minWidth, min
 
         height = _heightAndDeltaH2.height;
         deltaH = _heightAndDeltaH2.deltaH;
+
+        if (ratio) {
+          height = width / ratio;
+          deltaH = deltaW / ratio;
+        }
+
         cx -= deltaW / 2 * cos(rotateAngle) + deltaH / 2 * sin(rotateAngle);
         cy -= deltaW / 2 * sin(rotateAngle) - deltaH / 2 * cos(rotateAngle);
         break;
@@ -774,6 +792,12 @@ var getNewStyle = function getNewStyle(type, rect, deltaW, deltaH, minWidth, min
 
         height = _heightAndDeltaH3.height;
         deltaH = _heightAndDeltaH3.deltaH;
+
+        if (ratio) {
+          width = height * ratio;
+          deltaW = deltaH * ratio;
+        }
+
         cx -= deltaW / 2 * cos(rotateAngle) - deltaH / 2 * sin(rotateAngle);
         cy -= deltaW / 2 * sin(rotateAngle) + deltaH / 2 * cos(rotateAngle);
         break;
@@ -1220,7 +1244,10 @@ var Box = /*#__PURE__*/function (_PureComponent) {
             startX = e.clientX,
             startY = e.clientY;
         var boundingBox = this.props.getBoundingBoxElement();
-        var position = this.props.position;
+        var _this$props = this.props,
+            position = _this$props.position,
+            aspectRatio = _this$props.aspectRatio,
+            isShiftKeyActive = _this$props.isShiftKeyActive;
         var rotateAngle = position.rotateAngle ? position.rotateAngle : 0;
         var startingDimensions = getOffsetCoordinates(this.box.current);
         var boundingBoxPosition = getOffsetCoordinates(boundingBox.current);
@@ -1286,12 +1313,11 @@ var Box = /*#__PURE__*/function (_PureComponent) {
 
           var beta = alpha - degToRadian(rotateAngle);
           var deltaW = deltaL * Math.cos(beta);
-          var deltaH = deltaL * Math.sin(beta); // TODO: Account for ratio when there are more points for resizing and when adding extras like constant aspect ratio resizing, shift + resize etc.
-          // const ratio = rect.width / rect.height;
-
+          var deltaH = deltaL * Math.sin(beta);
+          var ratio = isShiftKeyActive && !aspectRatio || typeof aspectRatio === 'boolean' && aspectRatio ? rect.width / rect.height : aspectRatio;
           var type = target.id.replace('resize-', '');
 
-          var _getNewStyle = getNewStyle(type, rect, deltaW, deltaH, 10, 10),
+          var _getNewStyle = getNewStyle(type, rect, deltaW, deltaH, 10, 10, ratio),
               _getNewStyle$position = _getNewStyle.position,
               cx = _getNewStyle$position.cx,
               cy = _getNewStyle$position.cy,
@@ -1456,14 +1482,14 @@ var Box = /*#__PURE__*/function (_PureComponent) {
     value: function render() {
       var _this5 = this;
 
-      var _this$props = this.props,
-          areMultipleBoxesSelected = _this$props.areMultipleBoxesSelected,
-          boxStyle = _this$props.boxStyle,
-          id = _this$props.id,
-          isSelected = _this$props.isSelected,
-          isShiftKeyActive = _this$props.isShiftKeyActive,
-          position = _this$props.position,
-          resolution = _this$props.resolution;
+      var _this$props2 = this.props,
+          areMultipleBoxesSelected = _this$props2.areMultipleBoxesSelected,
+          boxStyle = _this$props2.boxStyle,
+          id = _this$props2.id,
+          isSelected = _this$props2.isSelected,
+          isShiftKeyActive = _this$props2.isShiftKeyActive,
+          position = _this$props2.position,
+          resolution = _this$props2.resolution;
 
       if (!isNaN(position.top) && !isNaN(position.left) && !isNaN(position.width) && !isNaN(position.height)) {
         var boundingBox = this.props.getBoundingBoxElement();
@@ -1571,7 +1597,8 @@ Box.propTypes = {
   position: PropTypes.object.isRequired,
   resize: PropTypes.bool,
   resolution: PropTypes.object,
-  rotate: PropTypes.bool
+  rotate: PropTypes.bool,
+  aspectRatio: PropTypes.oneOfType([PropTypes.number, PropTypes.bool])
 };
 
 function _typeof$1(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof$1 = function _typeof(obj) { return typeof obj; }; } else { _typeof$1 = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof$1(obj); }
@@ -2272,6 +2299,7 @@ var AlignmentGuides = /*#__PURE__*/function (_Component) {
 
       var draggableBoxes = Object.keys(boxes).map(function (box) {
         var position = boxes[box];
+        var aspectRatio = boxes[box].aspectRatio;
         var id = boxes[box].id || box;
         var isSelected = active === id || activeBoxes.includes(id);
         return /*#__PURE__*/React.createElement(Box, _extends({}, _this8.props, {
@@ -2298,7 +2326,8 @@ var AlignmentGuides = /*#__PURE__*/function (_Component) {
           resizing: _this8.state.resizing,
           rotating: _this8.state.rotating,
           selectBox: _this8.selectBox,
-          setDragOrResizeState: _this8.setDragOrResizeState
+          setDragOrResizeState: _this8.setDragOrResizeState,
+          aspectRatio: aspectRatio
         }));
       }); // Create a guide(s) when the following conditions are met:
       // 1. A box aligns with another (top, center or bottom)

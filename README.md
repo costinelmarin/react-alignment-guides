@@ -14,7 +14,7 @@ npm install --save react-alignment-guides
 ### Yarn
 ```bash
 yarn add react-alignment-guides
-```    
+```
 
 ## Usage
 
@@ -63,6 +63,7 @@ class Example extends Component {
 | width |  | Number |
 | height |  | Number |
 | rotateAngle |  | Number in the range -180 to 180 |
+| aspectRatio |  | Number or Boolean. 1 (makes the rectangle a square), width / height (keep aspect ratio) |
 
 ## License
 

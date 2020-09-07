@@ -257,7 +257,7 @@ class Box extends PureComponent {
 			e.stopPropagation();
 			const { target, clientX: startX, clientY: startY } = e;
 			const boundingBox = this.props.getBoundingBoxElement();
-			const { position } = this.props;
+			const { position, aspectRatio, isShiftKeyActive } = this.props
 			const rotateAngle = position.rotateAngle ? position.rotateAngle : 0;
 			const startingDimensions = getOffsetCoordinates(this.box.current);
 			const boundingBoxPosition = getOffsetCoordinates(boundingBox.current);
@@ -305,11 +305,16 @@ class Box extends PureComponent {
 				const beta = alpha - degToRadian(rotateAngle);
 				const deltaW = deltaL * Math.cos(beta);
 				const deltaH = deltaL * Math.sin(beta);
-				// TODO: Account for ratio when there are more points for resizing and when adding extras like constant aspect ratio resizing, shift + resize etc.
-				// const ratio = rect.width / rect.height;
+
+				const ratio =
+					(isShiftKeyActive && !aspectRatio) ||
+					(typeof aspectRatio === 'boolean' && aspectRatio)
+						? rect.width / rect.height
+						: aspectRatio;
+
 				const type = target.id.replace('resize-', '');
 
-				const { position: { cx, cy }, size: { width, height } } = getNewStyle(type, rect, deltaW, deltaH, 10, 10); // Use a better way to set minWidth and minHeight
+				const { position: { cx, cy }, size: { width, height } } = getNewStyle(type, rect, deltaW, deltaH, 10, 10, ratio); // Use a better way to set minWidth and minHeight
 				const tempPosition = centerToTopLeft({ cx, cy, width, height, rotateAngle });
 
 				data = {
@@ -573,7 +578,8 @@ Box.propTypes = {
 	position: PropTypes.object.isRequired,
 	resize: PropTypes.bool,
 	resolution: PropTypes.object,
-	rotate: PropTypes.bool
+	rotate: PropTypes.bool,
+	aspectRatio: PropTypes.oneOfType([PropTypes.number, PropTypes.bool]),
 };
 
 export default Box;
